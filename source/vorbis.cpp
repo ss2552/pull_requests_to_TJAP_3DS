@@ -4,16 +4,16 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "main.h"
 #include "vorbis.h"
 #include "header.h"
 
-static OggVorbis_File	vorbisFile;
-static vorbis_info		*vi;
-static FILE				*f;
-size_t		vorbis_buffer_size = DEFAULT_BUFFER_SIZE;// 8 * 4096;
+static OggVorbis_File vorbisFile;
+static vorbis_info *vi;
+static FILE *f;
+size_t vorbis_buffer_size = DEFAULT_BUFFER_SIZE; // 8 * 4096;
 
-void setVorbis(struct decoder_fn* decoder){
+void setVorbis(struct decoder_fn *decoder)
+{
 	decoder->init = &initVorbis;
 	decoder->rate = &rateVorbis;
 	decoder->channels = &channelVorbis;
@@ -22,16 +22,17 @@ void setVorbis(struct decoder_fn* decoder){
 	decoder->exit = &exitVorbis;
 }
 
-int initVorbis(const char* file){
+int initVorbis(const char *file)
+{
 	int err = -1;
 
-	if((f = fopen(file, "rb")) == NULL)
+	if ((f = fopen(file, "rb")) == NULL)
 		goto out;
 
-	if(ov_open(f, &vorbisFile, NULL, 0) < 0)
+	if (ov_open(f, &vorbisFile, NULL, 0) < 0)
 		goto out;
 
-	if((vi = ov_info(&vorbisFile, -1)) == NULL)
+	if ((vi = ov_info(&vorbisFile, -1)) == NULL)
 		goto out;
 
 	err = 0;
@@ -40,7 +41,8 @@ out:
 	return err;
 }
 
-uint32_t rateVorbis(void){
+uint32_t rateVorbis(void)
+{
 	return vi->rate;
 }
 
@@ -49,9 +51,9 @@ uint8_t channelVorbis(void)
 	return vi->channels;
 }
 
-uint64_t decodeVorbis(void* buffer)
+uint64_t decodeVorbis(void *buffer)
 {
-	return fillVorbisBuffer((char*)buffer);
+	return fillVorbisBuffer((char *)buffer);
 }
 
 void exitVorbis(void)
@@ -62,20 +64,21 @@ void exitVorbis(void)
 
 double vorbis_time = 0;
 
-uint64_t fillVorbisBuffer(char* bufferOut)
+uint64_t fillVorbisBuffer(char *bufferOut)
 {
 	uint64_t samplesRead = 0;
 	int samplesToRead = vorbis_buffer_size;
 
-	while(samplesToRead > 0)
+	while (samplesToRead > 0)
 	{
 		static int current_section;
 		int samplesJustRead =
 			ov_read(&vorbisFile, bufferOut, samplesToRead, &current_section);
 
-		if(samplesJustRead < 0)
+		if (samplesJustRead < 0)
 			return samplesJustRead;
-		else if(samplesJustRead == 0) {
+		else if (samplesJustRead == 0)
+		{
 			break;
 		}
 
@@ -83,16 +86,17 @@ uint64_t fillVorbisBuffer(char* bufferOut)
 		samplesToRead -= samplesJustRead;
 		bufferOut += samplesJustRead;
 	}
-	//vorbis_time = (double)ov_time_tell(&vorbisFile)/1000.0;
+	// vorbis_time = (double)ov_time_tell(&vorbisFile)/1000.0;
 	return samplesRead / sizeof(int16_t);
 }
 
-int isVorbis(const char *in){
+int isVorbis(const char *in)
+{
 	FILE *ft = fopen(in, "r");
 	OggVorbis_File testvf;
 	int err;
 
-	if(ft == NULL)
+	if (ft == NULL)
 		return -1;
 
 	err = ov_test(ft, &testvf, NULL, 0);
@@ -102,21 +106,27 @@ int isVorbis(const char *in){
 	return err;
 }
 
-double getVorbisTime() {
+double getVorbisTime()
+{
 
-	if (get_isMusicStart() == true) return vorbis_time = (double)ov_time_tell(&vorbisFile);	//再生前に呼び出すとクラッシュ
-	else return -1000;
+	if (get_isMusicStart() == true)
+		return vorbis_time = (double)ov_time_tell(&vorbisFile); // 再生前に呼び出すとクラッシュ
+	else
+		return -1000;
 }
-int setVorbisTime(double after_time) {
+int setVorbisTime(double after_time)
+{
 
 	int time = after_time * 1000;
 	return ov_time_seek(&vorbisFile, time);
 }
 
-int get_buffer_size() {
+int get_buffer_size()
+{
 	return (int)vorbis_buffer_size;
 }
 
-void put_buffer_size(int tmp) {
+void put_buffer_size(int tmp)
+{
 	vorbis_buffer_size = (size_t)tmp;
 }

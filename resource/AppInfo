@@ -1,0 +1,13 @@
+APP_TITLE = TJAP_3DS
+APP_DESCRIPTION = TJAP_3DS - Music game of the TJA file.
+APP_AUTHOR = 元: Togetoge | 後継: LuMariGames | 少し: esu
+APP_PRODUCT_CODE = CTR-HB-TJAP
+APP_UNIQUE_ID = 0xB7655
+APP_VERSION_MAJOR = 1
+APP_VERSION_MINOR = 6
+APP_VERSION_MICRO = 1
+
+# BANNER_AUDIO			:= resource/banner.wav
+# BANNER_IMAGE			:= resource/banner.cgfx
+# ICON        			:= resource/icon.png
+# RSF_PATH				:= resource/app.rsf
