@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h> // pow関数のために追加
-#include <3ds.h>
 #include "debug.h"
 #define BUFFER_SIZE 160 // バッファ用文字列のサイズ
 
-#include "header.h"
 #include "time.h"
 #include "notes.h"
 #include "tja.h"
