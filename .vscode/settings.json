@@ -4,7 +4,10 @@
         "cmath": "cpp",
         "complex": "cpp",
         "bit": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "compare": "cpp",
+        "cstdint": "cpp",
+        "format": "cpp"
     },
     "diffEditor.useInlineViewWhenSpaceIsLimited": false,
     "C_Cpp.default.browse.limitSymbolsToIncludedHeaders": false

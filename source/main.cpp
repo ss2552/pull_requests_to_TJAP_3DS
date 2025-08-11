@@ -14,7 +14,7 @@
 #include "result.h"
 #include "vorbis.h"
 
-bool get_isMusicStart();
+extern bool get_isMusicStart();
 int pause_window(touchPosition tp, unsigned int key);
 int message_window(touchPosition tp, unsigned int key, int text);
 

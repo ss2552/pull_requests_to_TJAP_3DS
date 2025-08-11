@@ -114,19 +114,3 @@ double getVorbisTime()
 	else
 		return -1000;
 }
-int setVorbisTime(double after_time)
-{
-
-	int time = after_time * 1000;
-	return ov_time_seek(&vorbisFile, time);
-}
-
-int get_buffer_size()
-{
-	return (int)vorbis_buffer_size;
-}
-
-void put_buffer_size(int tmp)
-{
-	vorbis_buffer_size = (size_t)tmp;
-}
