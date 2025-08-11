@@ -1,117 +1,296 @@
-#include <3ds.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <inttypes.h>
+#include <cstdio>
 
-#include "playback.h"
-#include "vorbis.h"
 #include "header.h"
+#include "vorbis.h"
+#include "select.h"
+#include "option.h"
 
-static OggVorbis_File vorbisFile;
-static vorbis_info *vi;
-static FILE *f;
-size_t vorbis_buffer_size = DEFAULT_BUFFER_SIZE; // 8 * 4096;
+#define delete(ptr)    \
+	free((void *)ptr); \
+	ptr = NULL
 
-void setVorbis(struct decoder_fn *decoder)
+static volatile bool stop = true;
+extern float mix[12];
+// double SetTime[2];
+
+bool togglePlayback(void)
 {
-	decoder->init = &initVorbis;
-	decoder->rate = &rateVorbis;
-	decoder->channels = &channelVorbis;
-	decoder->vorbis_buffer_size = vorbis_buffer_size;
-	decoder->decode = &decodeVorbis;
-	decoder->exit = &exitVorbis;
+
+	bool paused = ndspChnIsPaused(CHANNEL);
+	ndspChnSetPaused(CHANNEL, !paused);
+	return !paused;
 }
 
-int initVorbis(const char *file)
+void stopPlayback(void)
 {
-	int err = -1;
 
-	if ((f = fopen(file, "rb")) == NULL)
-		goto out;
-
-	if (ov_open(f, &vorbisFile, NULL, 0) < 0)
-		goto out;
-
-	if ((vi = ov_info(&vorbisFile, -1)) == NULL)
-		goto out;
-
-	err = 0;
-
-out:
-	return err;
+	stop = true;
 }
 
-uint32_t rateVorbis(void)
+bool isPlaying(void)
 {
-	return vi->rate;
+
+	return !stop;
 }
 
-uint8_t channelVorbis(void)
+int getFileType(const char *file)
 {
-	return vi->channels;
-}
 
-uint64_t decodeVorbis(void *buffer)
-{
-	return fillVorbisBuffer((char *)buffer);
-}
+	FILE *ftest = fopen(file, "rb");
+	uint32_t fileSig;
+	enum file_types file_type = FILE_TYPE_ERROR;
 
-void exitVorbis(void)
-{
-	ov_clear(&vorbisFile);
-	fclose(f);
-}
-
-double vorbis_time = 0;
-
-uint64_t fillVorbisBuffer(char *bufferOut)
-{
-	uint64_t samplesRead = 0;
-	int samplesToRead = vorbis_buffer_size;
-
-	while (samplesToRead > 0)
-	{
-		static int current_section;
-		int samplesJustRead =
-			ov_read(&vorbisFile, bufferOut, samplesToRead, &current_section);
-
-		if (samplesJustRead < 0)
-			return samplesJustRead;
-		else if (samplesJustRead == 0)
-		{
-			break;
-		}
-
-		samplesRead += samplesJustRead;
-		samplesToRead -= samplesJustRead;
-		bufferOut += samplesJustRead;
-	}
-	// vorbis_time = (double)ov_time_tell(&vorbisFile)/1000.0;
-	return samplesRead / sizeof(int16_t);
-}
-
-int isVorbis(const char *in)
-{
-	FILE *ft = fopen(in, "r");
-	OggVorbis_File testvf;
-	int err;
-
-	if (ft == NULL)
+	/* Failure opening file */
+	if (ftest == NULL)
 		return -1;
 
-	err = ov_test(ft, &testvf, NULL, 0);
+	if (fread(&fileSig, 4, 1, ftest) == 0)
+		goto err;
 
-	ov_clear(&testvf);
-	fclose(ft);
-	return err;
+	switch (fileSig)
+	{
+
+	// "RIFF"
+	case 0x46464952:
+		if (fseek(ftest, 4, SEEK_CUR) != 0)
+			break;
+
+		// "WAVE"
+		// Check required as AVI file format also uses "RIFF".
+		if (fread(&fileSig, 4, 1, ftest) == 0)
+			break;
+
+		if (fileSig != 0x45564157)
+			break;
+
+		file_type = FILE_TYPE_WAV;
+		break;
+
+	// "fLaC"
+	case 0x43614c66:
+		file_type = FILE_TYPE_FLAC;
+		break;
+
+	// "OggS"
+	case 0x5367674F:
+		if (isVorbis(file) == 0)
+			file_type = FILE_TYPE_VORBIS;
+
+		break;
+
+	default:
+
+		if ((fileSig << 16) == 0xFBFF0000 ||
+			(fileSig << 16) == 0xFAFF0000 ||
+			(fileSig << 8) == 0x33444900)
+		{
+			file_type = FILE_TYPE_MP3;
+			break;
+		}
+		break;
+	}
+
+err:
+	fclose(ftest);
+	return file_type;
 }
 
-double getVorbisTime()
+int testtest = 0;
+
+void playFile(void *infoIn)
 {
 
-	if (get_isMusicStart() == true)
-		return vorbis_time = (double)ov_time_tell(&vorbisFile); // 再生前に呼び出すとクラッシュ
-	else
-		return -1000;
+	struct decoder_fn decoder;
+	struct playbackInfo_t *info = (playbackInfo_t *)infoIn;
+	int16_t *buffer[2] = {NULL};
+	ndspWaveBuf waveBuf[2];
+	bool lastbuf = false, isNdspInit = false;
+	int ret = -1;
+	const char *file = info->file;
+
+	/* Reset previous stop command */
+	stop = false;
+
+	switch (getFileType(file))
+	{
+	case FILE_TYPE_VORBIS:
+		setVorbis(&decoder);
+		break;
+
+	default:
+		goto err;
+	}
+
+	if (ndspInit() < 0)
+	{
+		goto err;
+	}
+
+	isNdspInit = true;
+
+	if ((ret = (*decoder.init)(file)) != 0)
+	{
+		goto err;
+	}
+
+	if ((*decoder.channels)() > 2 || (*decoder.channels)() < 1)
+	{
+		goto err;
+	}
+	testtest = 99;
+	buffer[0] = (int16_t *)linearAlloc(decoder.vorbis_buffer_size * sizeof(int16_t));
+	buffer[1] = (int16_t *)linearAlloc(decoder.vorbis_buffer_size * sizeof(int16_t));
+
+	ndspChnReset(CHANNEL);
+	ndspChnWaveBufClear(CHANNEL);
+	ndspChnSetInterp(CHANNEL, NDSP_INTERP_LINEAR);
+	ndspChnSetRate(CHANNEL, (*decoder.rate)() * mspeed());
+	ndspChnSetFormat(CHANNEL, (*decoder.channels)() == 2 ? NDSP_FORMAT_STEREO_PCM16 : NDSP_FORMAT_MONO_PCM16);
+	ndspChnSetMix(CHANNEL, mix);
+
+	memset(waveBuf, 0, sizeof(waveBuf));
+
+	waveBuf[0].nsamples = (*decoder.decode)(&buffer[0][0]) / (*decoder.channels)();
+	waveBuf[0].data_vaddr = &buffer[0][0];
+	while (*info->isPlay == false)
+		svcSleepThread(100000);
+
+	ndspChnWaveBufAdd(CHANNEL, &waveBuf[0]);
+	waveBuf[1].nsamples = (*decoder.decode)(&buffer[1][0]) / (*decoder.channels)();
+	waveBuf[1].data_vaddr = &buffer[1][0];
+	ndspChnWaveBufAdd(CHANNEL, &waveBuf[1]);
+
+	while (ndspChnIsPlaying(CHANNEL) == false)
+		;
+
+	while (stop == false)
+	{
+		svcSleepThread(100000);
+
+		if (lastbuf == true && waveBuf[0].status == NDSP_WBUF_DONE &&
+			waveBuf[1].status == NDSP_WBUF_DONE)
+			break;
+
+		if (ndspChnIsPaused(CHANNEL) == true || lastbuf == true)
+			continue;
+
+		// 音声処理
+		if (waveBuf[0].status == NDSP_WBUF_DONE)
+		{
+			size_t read = (*decoder.decode)(&buffer[0][0]);
+			if (read <= 0)
+			{
+				lastbuf = true;
+				continue;
+			}
+			else if (read < decoder.vorbis_buffer_size)
+				waveBuf[0].nsamples = read / (*decoder.channels)();
+			ndspChnWaveBufAdd(CHANNEL, &waveBuf[0]);
+		}
+		if (waveBuf[1].status == NDSP_WBUF_DONE)
+		{
+			size_t read = (*decoder.decode)(&buffer[1][0]);
+			if (read <= 0)
+			{
+				lastbuf = true;
+				continue;
+			}
+			else if (read < decoder.vorbis_buffer_size)
+				waveBuf[1].nsamples = read / (*decoder.channels)();
+			ndspChnWaveBufAdd(CHANNEL, &waveBuf[1]);
+		}
+	}
+
+	(*decoder.exit)();
+out:
+	if (isNdspInit == true)
+	{
+		ndspChnWaveBufClear(CHANNEL);
+		ndspExit();
+	}
+
+	delete (info->file);
+	linearFree(buffer[0]);
+	linearFree(buffer[1]);
+
+	threadExit(0);
+	return;
+
+err:
+	goto out;
+}
+
+struct playbackInfo_t playbackInfo;
+
+inline int changeFile(const char *ep_file, struct playbackInfo_t *playbackInfo, bool *p_isPlayMain)
+{
+
+	s32 prio;
+	static Thread thread = NULL;
+
+	if (ep_file != NULL && getFileType(ep_file) == FILE_TYPE_ERROR)
+		return -1;
+
+	if (thread != NULL)
+	{
+		stopPlayback();
+
+		threadJoin(thread, U64_MAX);
+		threadFree(thread);
+		thread = NULL;
+		APT_SetAppCpuTimeLimit(5);
+	}
+
+	if (ep_file == NULL || playbackInfo == NULL)
+		return 0;
+
+	playbackInfo->file = strdup(ep_file);
+	playbackInfo->isPlay = p_isPlayMain;
+
+	svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
+	thread = threadCreate(playFile, playbackInfo, DECODE_MEM, prio - 1, DECODE_COREID, false);
+	return 0;
+}
+
+void play_main_music(bool *p_isPlayMain, LIST_T Song)
+{
+
+	chdir(Song.path);
+	changeFile(Song.wave, &playbackInfo, p_isPlayMain);
+}
+
+void pasue_main_music()
+{
+
+	if (isPlaying() == true)
+	{
+		togglePlayback();
+	}
+}
+
+void stop_main_music()
+{
+
+	stopPlayback();
+	changeFile(NULL, &playbackInfo, NULL);
+}
+
+void init_main_music()
+{
+
+	playbackInfo.file = NULL;
+}
+
+int check_wave(LIST_T Song)
+{ // 音楽ファイルの確認
+
+	chdir(Song.path);
+	int result = getFileType(Song.wave);
+
+	if (result == -1)
+		return WARNING_WAVE_NO_EXIST;
+	else if (result != FILE_TYPE_VORBIS)
+		return WARNING_WAVE_NOT_OGG;
+
+	return -1;
 }

@@ -43,5 +43,3 @@ void pasue_main_music();
 void stop_main_music();
 void init_main_music();
 int check_wave(LIST_T Song);
-
-bool get_isMusicStart();
