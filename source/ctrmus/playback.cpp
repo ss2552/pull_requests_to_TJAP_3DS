@@ -4,6 +4,7 @@
 #include <string.h>
 #include <inttypes.h>
 
+#include "playback.h"
 #include "vorbis.h"
 #include "header.h"
 
