@@ -81,12 +81,9 @@ void load_tja_head(int course, LIST_T Song)
 	// Current_Header.side = 3;
 	Current_Header.scoremode = 2;
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 4; i++)
 	{
-		for (int j = 0; j < 4; ++j)
-		{
-			exam[i][j] = (char *)"";
-		}
+		for (int j = 0; j < 4; j++)
 		{
 			exam[i][j] = (char *)"";
 		}
