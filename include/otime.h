@@ -8,4 +8,4 @@ int get_time_isStop(int id);
 void toggle_time(int id);
 // double calc_vorbis_time(double CurrentTimeNotes);
 
-void get_isMusicStart();
+bool get_isMusicStart();
