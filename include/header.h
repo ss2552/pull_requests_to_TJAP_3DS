@@ -263,4 +263,3 @@ enum WARNING_KND
 
 bool get_isPause();
 char *get_buffer();
-void load_sprites();
