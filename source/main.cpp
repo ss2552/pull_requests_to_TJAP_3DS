@@ -4,6 +4,7 @@
 #include "debug.h"
 #define BUFFER_SIZE 160 // バッファ用文字列のサイズ
 
+#include "header.h"
 #include "time.h"
 #include "notes.h"
 #include "tja.h"
