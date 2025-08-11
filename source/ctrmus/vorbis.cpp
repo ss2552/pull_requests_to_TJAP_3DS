@@ -4,7 +4,6 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "main.h"
 #include "vorbis.h"
 #include "header.h"
 
