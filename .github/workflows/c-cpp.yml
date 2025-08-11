@@ -14,10 +14,13 @@ jobs:
       - name: make
         run: make 3dsx
 
+      - name: get current time
+        env:
+          TZ: Asia/Tokyo
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
       - name: All Upload
         uses: actions/upload-artifact@v4
-        env:
-          TZ: "Asia/Tokyo"
         with:
-          name: TJAP_3DS_${{date +'%Y-%m-%d'}}
+          name: TJAP_3DS_${{env.date}}
           path: ./
