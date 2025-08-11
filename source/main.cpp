@@ -103,6 +103,75 @@ bool check_dsp1()
 int touch_x, touch_y, touch_cnt, PreTouch_x, PreTouch_y, // タッチ用
 	memtch_x, memtch_y;
 
+inline static void load_sprites()
+{
+
+	if (exist_file("sdmc:/tjafiles/theme/default.t3x"))
+		spriteSheet = C2D_SpriteSheetLoad("sdmc:/tjafiles/theme/default.t3x");
+	else
+		spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
+	otherspsh = C2D_SpriteSheetLoad("romfs:/gfx/other.t3x");
+	if (exist_file("sdmc:/tjafiles/theme/dancer.t3x"))
+	{
+		dancerspsh = C2D_SpriteSheetLoad("sdmc:/tjafiles/theme/dancer.t3x");
+		dance = true;
+		dancnt = (unsigned int)C2D_SpriteSheetCount(dancerspsh);
+	}
+
+	if (!spriteSheet)
+		svcBreak(USERBREAK_PANIC);
+
+	for (int i = 0, j = SPRITES_NUMER - 1; i < j; ++i)
+	{
+		C2D_SpriteFromSheet(&sprites[i], spriteSheet, i);
+		C2D_SpriteSetCenter(&sprites[i], 0.5f, 0.5f);
+	}
+
+	C2D_SpriteFromSheet(&sprites[SPRITES_NUMER - 1], otherspsh, 0);
+	C2D_SpriteSetCenter(&sprites[SPRITES_NUMER - 1], 0.5f, 0.5f);
+
+	if (dance)
+	{
+		for (int i = 0, j = dancnt; i < j; ++i)
+		{
+			C2D_SpriteFromSheet(&sprites[SPRITES_NUMER + i], dancerspsh, i);
+			C2D_SpriteSetCenter(&sprites[SPRITES_NUMER + i], 0.5f, 0.5f);
+		}
+	}
+
+	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON], 13, 13);
+	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_1], 9, 12);
+	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_2], 9, 26);
+	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_3], 9, 31);
+	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_4], 9, 45);
+	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_5], 9, 51);
+	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_6], 9, 59);
+	for (int i = 0; i < 4; ++i)
+		C2D_SpriteSetPos(&sprites[SPRITE_EFFECT_PERFECT + i], 93, 109);
+
+	C2D_SpriteSetPos(&sprites[SPRITE_EFFECT_GOGO], 110, 92);
+	C2D_SpriteSetPos(&sprites[SPRITE_TOP], TOP_WIDTH * 0.5, TOP_HEIGHT * 0.5);
+	C2D_SpriteSetPos(&sprites[SPRITE_TOP_2], TOP_WIDTH * 0.5, 43);
+	C2D_SpriteSetPos(&sprites[SPRITE_TOP_3], TOP_WIDTH * 0.5, 200);
+	C2D_SpriteSetPos(&sprites[SPRITE_BOTTOM], BOTTOM_WIDTH * 0.5, BOTTOM_HEIGHT * 0.5);
+	C2D_SpriteSetPos(&sprites[SPRITE_DONCHAN_0], dn_x, dn_y);
+	C2D_SpriteSetPos(&sprites[SPRITE_DONCHAN_1], dn_x, dn_y);
+	C2D_SpriteSetPos(&sprites[SPRITE_DONCHAN_2], dg_x, dg_y);
+	C2D_SpriteSetPos(&sprites[SPRITE_DONCHAN_3], dg_x, dg_y);
+	for (int i = 0; i < 7; ++i)
+		C2D_SpriteSetPos(&sprites[SPRITE_EMBLEM_EASY + i], 31, 113);
+
+	C3D_TexSetFilter(sprites[SPRITE_DON].image.tex, GPU_LINEAR, GPU_LINEAR);
+	C3D_TexSetFilter(sprites[SPRITE_KATSU].image.tex, GPU_LINEAR, GPU_LINEAR);
+	C3D_TexSetFilter(sprites[SPRITE_BIG_DON].image.tex, GPU_LINEAR, GPU_LINEAR);
+	C3D_TexSetFilter(sprites[SPRITE_BIG_KATSU].image.tex, GPU_LINEAR, GPU_LINEAR);
+	C3D_TexSetFilter(sprites[SPRITE_ROLL_START].image.tex, GPU_LINEAR, GPU_LINEAR);
+	C3D_TexSetFilter(sprites[SPRITE_BIG_ROLL_START].image.tex, GPU_LINEAR, GPU_LINEAR);
+	C3D_TexSetFilter(sprites[SPRITE_ROLL_END].image.tex, GPU_LINEAR, GPU_LINEAR);
+	C3D_TexSetFilter(sprites[SPRITE_BIG_ROLL_END].image.tex, GPU_LINEAR, GPU_LINEAR);
+	C3D_TexSetFilter(sprites[SPRITE_BALLOON].image.tex, GPU_LINEAR, GPU_LINEAR);
+}
+
 int main()
 {
 
@@ -599,75 +668,6 @@ int main()
 	}
 	exit_main();
 	exit(0);
-}
-
-inline static void load_sprites()
-{
-
-	if (exist_file("sdmc:/tjafiles/theme/default.t3x"))
-		spriteSheet = C2D_SpriteSheetLoad("sdmc:/tjafiles/theme/default.t3x");
-	else
-		spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
-	otherspsh = C2D_SpriteSheetLoad("romfs:/gfx/other.t3x");
-	if (exist_file("sdmc:/tjafiles/theme/dancer.t3x"))
-	{
-		dancerspsh = C2D_SpriteSheetLoad("sdmc:/tjafiles/theme/dancer.t3x");
-		dance = true;
-		dancnt = (unsigned int)C2D_SpriteSheetCount(dancerspsh);
-	}
-
-	if (!spriteSheet)
-		svcBreak(USERBREAK_PANIC);
-
-	for (int i = 0, j = SPRITES_NUMER - 1; i < j; ++i)
-	{
-		C2D_SpriteFromSheet(&sprites[i], spriteSheet, i);
-		C2D_SpriteSetCenter(&sprites[i], 0.5f, 0.5f);
-	}
-
-	C2D_SpriteFromSheet(&sprites[SPRITES_NUMER - 1], otherspsh, 0);
-	C2D_SpriteSetCenter(&sprites[SPRITES_NUMER - 1], 0.5f, 0.5f);
-
-	if (dance)
-	{
-		for (int i = 0, j = dancnt; i < j; ++i)
-		{
-			C2D_SpriteFromSheet(&sprites[SPRITES_NUMER + i], dancerspsh, i);
-			C2D_SpriteSetCenter(&sprites[SPRITES_NUMER + i], 0.5f, 0.5f);
-		}
-	}
-
-	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON], 13, 13);
-	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_1], 9, 12);
-	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_2], 9, 26);
-	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_3], 9, 31);
-	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_4], 9, 45);
-	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_5], 9, 51);
-	C2D_SpriteSetCenterRaw(&sprites[SPRITE_BALLOON_6], 9, 59);
-	for (int i = 0; i < 4; ++i)
-		C2D_SpriteSetPos(&sprites[SPRITE_EFFECT_PERFECT + i], 93, 109);
-
-	C2D_SpriteSetPos(&sprites[SPRITE_EFFECT_GOGO], 110, 92);
-	C2D_SpriteSetPos(&sprites[SPRITE_TOP], TOP_WIDTH * 0.5, TOP_HEIGHT * 0.5);
-	C2D_SpriteSetPos(&sprites[SPRITE_TOP_2], TOP_WIDTH * 0.5, 43);
-	C2D_SpriteSetPos(&sprites[SPRITE_TOP_3], TOP_WIDTH * 0.5, 200);
-	C2D_SpriteSetPos(&sprites[SPRITE_BOTTOM], BOTTOM_WIDTH * 0.5, BOTTOM_HEIGHT * 0.5);
-	C2D_SpriteSetPos(&sprites[SPRITE_DONCHAN_0], dn_x, dn_y);
-	C2D_SpriteSetPos(&sprites[SPRITE_DONCHAN_1], dn_x, dn_y);
-	C2D_SpriteSetPos(&sprites[SPRITE_DONCHAN_2], dg_x, dg_y);
-	C2D_SpriteSetPos(&sprites[SPRITE_DONCHAN_3], dg_x, dg_y);
-	for (int i = 0; i < 7; ++i)
-		C2D_SpriteSetPos(&sprites[SPRITE_EMBLEM_EASY + i], 31, 113);
-
-	C3D_TexSetFilter(sprites[SPRITE_DON].image.tex, GPU_LINEAR, GPU_LINEAR);
-	C3D_TexSetFilter(sprites[SPRITE_KATSU].image.tex, GPU_LINEAR, GPU_LINEAR);
-	C3D_TexSetFilter(sprites[SPRITE_BIG_DON].image.tex, GPU_LINEAR, GPU_LINEAR);
-	C3D_TexSetFilter(sprites[SPRITE_BIG_KATSU].image.tex, GPU_LINEAR, GPU_LINEAR);
-	C3D_TexSetFilter(sprites[SPRITE_ROLL_START].image.tex, GPU_LINEAR, GPU_LINEAR);
-	C3D_TexSetFilter(sprites[SPRITE_BIG_ROLL_START].image.tex, GPU_LINEAR, GPU_LINEAR);
-	C3D_TexSetFilter(sprites[SPRITE_ROLL_END].image.tex, GPU_LINEAR, GPU_LINEAR);
-	C3D_TexSetFilter(sprites[SPRITE_BIG_ROLL_END].image.tex, GPU_LINEAR, GPU_LINEAR);
-	C3D_TexSetFilter(sprites[SPRITE_BALLOON].image.tex, GPU_LINEAR, GPU_LINEAR);
 }
 
 bool get_isPause()
