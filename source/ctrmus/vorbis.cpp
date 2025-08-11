@@ -1,53 +1,28 @@
-﻿//
-// https://github.com/deltabeard/ctrmus
-// This file is part of ctrmus, a music player for the Nintendo 3DS.
-//
-
-#include <3ds.h>
+﻿#include <3ds.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
+#include "main.h"
 #include "vorbis.h"
-#include "playback.h"
+#include "header.h"
 
 static OggVorbis_File vorbisFile;
 static vorbis_info *vi;
 static FILE *f;
-static const size_t buffSize = 8 * 4096;
+size_t vorbis_buffer_size = DEFAULT_BUFFER_SIZE; // 8 * 4096;
 
-static int initVorbis(const char *file);
-static uint32_t rateVorbis(void);
-static uint8_t channelVorbis(void);
-static uint64_t decodeVorbis(void *buffer);
-static void exitVorbis(void);
-static uint64_t fillVorbisBuffer(char *bufferOut);
-
-/**
- * Set decoder parameters for Vorbis.
- *
- * \param	decoder	Structure to store parameters.
- */
 void setVorbis(struct decoder_fn *decoder)
 {
 	decoder->init = &initVorbis;
 	decoder->rate = &rateVorbis;
 	decoder->channels = &channelVorbis;
-	decoder->buffSize = buffSize;
+	decoder->vorbis_buffer_size = vorbis_buffer_size;
 	decoder->decode = &decodeVorbis;
 	decoder->exit = &exitVorbis;
 }
 
-/**
- * Initialise Vorbis decoder.
- *
- * \param	file	Location of vorbis file to play.
- * \return			0 on success, else failure.
- */
 int initVorbis(const char *file)
 {
 	int err = -1;
@@ -67,72 +42,44 @@ out:
 	return err;
 }
 
-/**
- * Get sampling rate of Vorbis file.
- *
- * \return	Sampling rate.
- */
 uint32_t rateVorbis(void)
 {
 	return vi->rate;
 }
 
-/**
- * Get number of channels of Vorbis file.
- *
- * \return	Number of channels for opened file.
- */
 uint8_t channelVorbis(void)
 {
 	return vi->channels;
 }
 
-/**
- * Decode part of open Vorbis file.
- *
- * \param buffer	Decoded output.
- * \return			Samples read for each channel. 0 for end of file, negative
- *					for error.
- */
 uint64_t decodeVorbis(void *buffer)
 {
-	return fillVorbisBuffer(buffer);
+	return fillVorbisBuffer((char *)buffer);
 }
 
-/**
- * Free Vorbis decoder.
- */
 void exitVorbis(void)
 {
 	ov_clear(&vorbisFile);
 	fclose(f);
 }
 
-/**
- * Decode Vorbis file to fill buffer.
- *
- * \param opusFile		File to decode.
- * \param bufferOut		Pointer to buffer.
- * \return				Samples read per channel.
- */
+double vorbis_time = 0;
+
 uint64_t fillVorbisBuffer(char *bufferOut)
 {
 	uint64_t samplesRead = 0;
-	int samplesToRead = buffSize;
+	int samplesToRead = vorbis_buffer_size;
 
 	while (samplesToRead > 0)
 	{
 		static int current_section;
 		int samplesJustRead =
-			ov_read(&vorbisFile, bufferOut,
-					samplesToRead > 4096 ? 4096 : samplesToRead,
-					&current_section);
+			ov_read(&vorbisFile, bufferOut, samplesToRead, &current_section);
 
 		if (samplesJustRead < 0)
 			return samplesJustRead;
 		else if (samplesJustRead == 0)
 		{
-			/* End of file reached. */
 			break;
 		}
 
@@ -140,16 +87,10 @@ uint64_t fillVorbisBuffer(char *bufferOut)
 		samplesToRead -= samplesJustRead;
 		bufferOut += samplesJustRead;
 	}
-
+	// vorbis_time = (double)ov_time_tell(&vorbisFile)/1000.0;
 	return samplesRead / sizeof(int16_t);
 }
 
-/**
- * Checks if the input file is Vorbis.
- *
- * \param in	Input file.
- * \return		0 if Vorbis file, else not or failure.
- */
 int isVorbis(const char *in)
 {
 	FILE *ft = fopen(in, "r");
@@ -164,4 +105,29 @@ int isVorbis(const char *in)
 	ov_clear(&testvf);
 	fclose(ft);
 	return err;
+}
+
+double getVorbisTime()
+{
+
+	if (get_isMusicStart() == true)
+		return vorbis_time = (double)ov_time_tell(&vorbisFile); // 再生前に呼び出すとクラッシュ
+	else
+		return -1000;
+}
+int setVorbisTime(double after_time)
+{
+
+	int time = after_time * 1000;
+	return ov_time_seek(&vorbisFile, time);
+}
+
+int get_buffer_size()
+{
+	return (int)vorbis_buffer_size;
+}
+
+void put_buffer_size(int tmp)
+{
+	vorbis_buffer_size = (size_t)tmp;
 }

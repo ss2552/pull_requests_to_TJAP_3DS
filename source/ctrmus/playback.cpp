@@ -4,6 +4,7 @@
 #include "vorbis.h"
 #include "select.h"
 #include "option.h"
+#include "playback.h"
 
 #define delete(ptr)    \
 	free((void *)ptr); \
