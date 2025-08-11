@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h> // pow関数のために追加
-
+#include <3ds.h>
+#include "debug.h"
 #define BUFFER_SIZE 160 // バッファ用文字列のサイズ
 
 #include "header.h"
@@ -22,8 +23,6 @@ extern float NowBPM;
 extern bool isGOGO, loadend;
 C2D_Sprite sprites[144]; // 画像用
 static C2D_SpriteSheet spriteSheet, otherspsh, dancerspsh;
-C2D_TextBuf g_dynamicBuf;
-C2D_Text dynText;
 Thread chartload;
 bool isPause = false, isNotesStart = false, isMusicStart = false, isPlayMain = false, isExit = false;
 char buffer[BUFFER_SIZE];
