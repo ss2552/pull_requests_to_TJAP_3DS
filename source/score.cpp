@@ -1,7 +1,8 @@
-﻿#include "header.h"
+﻿#include <math.h>
+#include "header.h"
 #include "notes.h"
 #include "tja.h"
-
+#include "main.h"
 #include "score.h"
 #include "result.h"
 
@@ -321,9 +322,9 @@ void draw_score(C2D_Sprite sprites[SPRITES_NUMER])
 	for (int i = 0; i < 7; ++i)
 	{
 
-		if (TotalScore / (10 * *i) > 0)
+		if (TotalScore / pow(10, i) > 0)
 		{
-			int n = TotalScore / (10 * *i) % 10;
+			int n = TotalScore / pow(10, i) % 10;
 			C2D_SpriteSetPos(&sprites[SPRITE_SCORE_0 + n], 80 - i * 12, 70);
 			C2D_DrawSprite(&sprites[SPRITE_SCORE_0 + n]);
 		}
@@ -334,16 +335,16 @@ void draw_score(C2D_Sprite sprites[SPRITES_NUMER])
 	// コンボ
 	for (j = 0; j < 5; ++j)
 	{
-		if (combo / (10 * *i) == 0)
+		if (combo / pow(10, j) == 0)
 			break;
 	}
 	for (int i = 0; i < 5; ++i)
 	{
 
-		if (combo >= 10 && combo / (10 * *i) > 0)
+		if (combo >= 10 && combo / pow(10, i) > 0)
 		{
 
-			int n = combo / (10 * *i) % 10;
+			int n = combo / pow(10, i) % 10;
 
 			if (combo < 100)
 			{
@@ -361,7 +362,7 @@ void draw_score(C2D_Sprite sprites[SPRITES_NUMER])
 	// 連打
 	for (j = 0; j < 4; ++j)
 	{
-		if (CurrentRollCount / (10 * *i) == 0)
+		if (CurrentRollCount / pow(10, j) == 0)
 			break;
 	}
 	if (CurrentRollCount > 0)
@@ -372,10 +373,10 @@ void draw_score(C2D_Sprite sprites[SPRITES_NUMER])
 	for (int i = 0; i < 4; ++i)
 	{
 
-		if (CurrentRollCount / (10 * *i) > 0)
+		if (CurrentRollCount / pow(10, i) > 0)
 		{
 
-			int n = CurrentRollCount / (10 * *i) % 10;
+			int n = CurrentRollCount / pow(10, i) % 10;
 			C2D_SpriteSetPos(&sprites[SPRITE_ROLL_0 + n], 95 + j * 10 - i * 20, 30);
 			C2D_DrawSprite(&sprites[SPRITE_ROLL_0 + n]);
 		}
@@ -384,7 +385,7 @@ void draw_score(C2D_Sprite sprites[SPRITES_NUMER])
 	// 風船
 	for (j = 0; j < 5; ++j)
 	{
-		if (CurrentBalloonCount / (10 * *i) == 0)
+		if (CurrentBalloonCount / pow(10, j) == 0)
 			break;
 	}
 	if (CurrentBalloonCount > 0)
@@ -395,10 +396,10 @@ void draw_score(C2D_Sprite sprites[SPRITES_NUMER])
 	for (int i = 0; i < 5; ++i)
 	{
 
-		if (CurrentBalloonCount / (10 * *i) > 0)
+		if (CurrentBalloonCount / pow(10, i) > 0)
 		{
 
-			int n = CurrentBalloonCount / (10 * *i) % 10;
+			int n = CurrentBalloonCount / pow(10, i) % 10;
 			C2D_SpriteSetPos(&sprites[SPRITE_ROLL_0 + n], 97 + j * 10 - i * 20, 30);
 			C2D_DrawSprite(&sprites[SPRITE_ROLL_0 + n]);
 		}

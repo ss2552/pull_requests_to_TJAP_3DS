@@ -15,7 +15,6 @@
 #include "vorbis.h"
 
 bool get_isMusicStart();
-int powi(int x, int y);
 int pause_window(touchPosition tp, unsigned int key);
 int message_window(touchPosition tp, unsigned int key, int text);
 
@@ -679,18 +678,6 @@ bool get_isMusicStart()
 char *get_buffer()
 {
 	return buffer;
-}
-
-int powi(int x, int y)
-{ // なぜかpowのキャストが上手くいかないので整数用powを自作
-
-	int ans = 1;
-
-	for (int i = 0; i < y; ++i)
-	{
-		ans = ans * x;
-	}
-	return ans;
 }
 
 C2D_TextBuf g_MainText = C2D_TextBufNew(4096);
