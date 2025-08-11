@@ -2,7 +2,6 @@
 #include "header.h"
 #include "notes.h"
 #include "tja.h"
-#include "main.h"
 #include "score.h"
 #include "result.h"
 
