@@ -16,3 +16,5 @@ uint64_t fillVorbisBuffer(char *bufferOut);
 int isVorbis(const char *in);
 double getVorbisTime();
 // int setVorbisTime(double after_time);
+
+bool get_isMusicStart();
