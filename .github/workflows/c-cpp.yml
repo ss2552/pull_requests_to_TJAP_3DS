@@ -1,6 +1,8 @@
 name: Build to TJAP_3DS.3dsx
 
-on: "main"
+on:
+  push:
+    branches: main
 
 jobs:
   build:
