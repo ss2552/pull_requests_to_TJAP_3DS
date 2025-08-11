@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "header.h"
-#include "time.h"
+#include "otime.h"
 #include "notes.h"
 #include "tja.h"
 #include "audio.h"

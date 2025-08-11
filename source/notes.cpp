@@ -1,6 +1,6 @@
 #include "header.h"
 
-#include "time.h"
+#include "otime.h"
 #include "audio.h"
 #include "tja.h"
 #include "notes.h"

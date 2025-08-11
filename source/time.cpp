@@ -2,7 +2,7 @@
 
 #include "vorbis.h"
 #include "tja.h"
-#include "time.h"
+#include "otime.h"
 #include "option.h"
 #include <time.h>
 
