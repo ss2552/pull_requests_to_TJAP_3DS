@@ -1,22 +1,21 @@
-name: C/C++ CI
+name: Build to TJAP_3DS.3dsx
 
-on:
-  push:
-    branches: "main"
+on: "main"
 
 jobs:
   build:
-
     runs-on: ubuntu_latest
     container: devkitpro/devkitarm
 
     steps:
-    - uses: actions/checkout@v4
-    - name: make
-      run: make
+      - uses: actions/checkout@v4
+      - name: make
+        run: make 3dsx
 
-    - name: All Upload
-      uses: actions/upload-artifact@v4
-      with:
-        name: TJAP_3DS_${}
-        path: ./
+      - name: All Upload
+        uses: actions/upload-artifact@v4
+        env:
+          TZ: "Asia/Tokyo"
+        with:
+          name: TJAP_3DS_${{date +'%Y-%m-%d'}}
+          path: ./

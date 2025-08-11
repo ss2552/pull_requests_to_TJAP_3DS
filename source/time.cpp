@@ -6,6 +6,8 @@
 #include "option.h"
 #include <time.h>
 
+#include "debug.h"
+
 enum msec_status
 {
 	MSEC_INIT,

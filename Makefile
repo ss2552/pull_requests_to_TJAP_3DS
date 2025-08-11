@@ -46,7 +46,7 @@ GFXBUILD    := $(ROMFS)/gfx
 #---------------------------------------------------------------------------------
 # Resource Setup
 #---------------------------------------------------------------------------------
-APP_INFO        := $(RESOURCES)/AppInfo
+APP_INFO        := AppInfo
 BANNER_AUDIO    := $(RESOURCES)/audio
 BANNER_IMAGE    := $(RESOURCES)/banner
 ICON            := $(RESOURCES)/icon.png
@@ -152,7 +152,7 @@ endif
 # First set of targets ensure the build/output directories are created and execute
 # in the context of the BUILD directory.
 #---------------------------------------------------------------------------------
-.PHONY : clean all bootstrap 3dsx cia elf 3ds citra release
+.PHONY : all bootstrap 3dsx cia elf 3ds citra release
 
 all : bootstrap
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
@@ -179,10 +179,6 @@ bootstrap :
 	@[ -d $(BUILD) ] || mkdir -p $(BUILD)
 	@[ -d $(OUTPUT_DIR) ] || mkdir -p $(OUTPUT_DIR)
 	@[ -d $(GFXBUILD) ] || mkdir -p $(GFXBUILD)
-
-clean :
-	@echo clean ...
-	@rm -rf $(BUILD) $(OUTPUT)
 
 #---------------------------------------------------------------------------------
 else
