@@ -177,34 +177,37 @@ const char Text[3][60][128] = {
 		"1P",
 		"2P",
 		"Búsqueda de canciones",
-	}
-};
+	}};
 
-typedef struct {
+typedef struct
+{
 
-	int lang,buffer_size,Voice,special,player;
-	bool isAuto,isStelth,isSwap,dispFps,fixroll,exse;
-	float speed,random,offset,blacktext,musicspeed,
-		judge_range_perfect,judge_range_nice,judge_range_bad;
+	int lang, buffer_size, Voice, special, player;
+	bool isAuto, isStelth, isSwap, dispFps, fixroll, exse;
+	float speed, random, offset, blacktext, musicspeed,
+		judge_range_perfect, judge_range_nice, judge_range_bad;
 	char SongTitle[256] = "\0";
 	int KEY_A, KEY_B, KEY_DRIGHT, KEY_DLEFT, KEY_DUP, KEY_DDOWN, KEY_R, KEY_L, KEY_X, KEY_Y,
 		KEY_ZL, KEY_ZR, KEY_CSTICK_RIGHT, KEY_CSTICK_LEFT, KEY_CSTICK_UP, KEY_CSTICK_DOWN,
 		KEY_CPAD_RIGHT, KEY_CPAD_LEFT, KEY_CPAD_UP, KEY_CPAD_DOWN;
 } OPTION_T;
 
-enum Lang_knd {
+enum Lang_knd
+{
 	LANG_JP = 0,
 	LANG_EN,
 	LANG_ES,
 };
 
-enum KEY_KND {
+enum KEY_KND
+{
 	KEY_NONE = 0,
 	KEY_DON,
 	KEY_KATSU,
 };
 
-enum Text_knd {
+enum Text_knd
+{
 	TEXT_ON,
 	TEXT_OFF,
 	TEXT_EASY,
@@ -267,4 +270,10 @@ enum Text_knd {
 int get_lang();
 bool get_isauto();
 float mspeed();
-void draw_option(u16 px, u16 py, unsigned int key , C2D_Sprite sprites[SPRITES_NUMER]),toggle_auto(),get_option(OPTION_T *TMP),init_option(),load_option(),exit_option(),save_option();
+void draw_option(u16 px, u16 py, unsigned int key, C2D_Sprite sprites[SPRITES_NUMER]),
+	toggle_auto(),
+	get_option(OPTION_T *TMP),
+	init_option(),
+	load_option(),
+	exit_option(),
+	save_option();
