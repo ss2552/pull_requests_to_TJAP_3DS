@@ -1,4 +1,9 @@
 
+#include <3ds.h>
+#include <citro2d.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "debug.h"
 
 void draw_debug(float x, float y, const char *text)
