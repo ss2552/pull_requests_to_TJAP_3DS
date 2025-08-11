@@ -51,6 +51,8 @@
 
 #define DEFAULT_BUFFER_SIZE 131072
 
+#define BUFFER_SIZE 160 // バッファ用文字列のサイズ
+
 enum NOTES_KND
 {
 

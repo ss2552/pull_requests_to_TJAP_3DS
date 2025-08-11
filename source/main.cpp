@@ -14,8 +14,6 @@
 #include "result.h"
 #include "vorbis.h"
 
-#define BUFFER_SIZE 160 // バッファ用文字列のサイズ
-
 bool get_isMusicStart();
 int powi(int x, int y);
 int pause_window(touchPosition tp, unsigned int key);
