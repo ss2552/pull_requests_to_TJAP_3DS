@@ -7,7 +7,8 @@
         "random": "cpp",
         "compare": "cpp",
         "cstdint": "cpp",
-        "format": "cpp"
+        "format": "cpp",
+        "ivorbiscodec.h": "c"
     },
     "diffEditor.useInlineViewWhenSpaceIsLimited": false,
     "C_Cpp.default.browse.limitSymbolsToIncludedHeaders": false
