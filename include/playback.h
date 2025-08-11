@@ -1,42 +1,92 @@
-#pragma once
+#include <stdbool.h>
+#include <limits.h>
 
-#include "select.h"
+#ifndef ctrmus_playback_h
+#define ctrmus_playback_h
 
-#define CHANNEL 5
+/* Channel to play music on */
+#define CHANNEL 0x08
 
-enum file_types{
-	FILE_TYPE_ERROR = -1,
-	FILE_TYPE_WAV,
-	FILE_TYPE_FLAC,
-	FILE_TYPE_VORBIS,
-	FILE_TYPE_OPUS,
-	FILE_TYPE_MP3
+struct decoder_fn
+{
+	/**
+	 * Set decoder parameters.
+	 * \param	decoder Structure to store parameters.
+	 * \return	0 on success, else failure.
+	 */
+	int (*init)(const char *file);
+
+	/**
+	 * Get sampling rate of file.
+	 * \return	Sampling rate.
+	 */
+	uint32_t (*rate)(void);
+
+	/**
+	 * Get number of channels of file.
+	 * \return	Number of channels for opened file.
+	 */
+	uint8_t (*channels)(void);
+
+	/**
+	 * Size of output buffer used in decode().
+	 */
+	size_t buffSize;
+
+	/**
+	 * Fill buffer with decoded samples.
+	 * \param buffer	Output buffer to fill.
+	 * \return		Samples read for each channel.
+	 */
+	uint64_t (*decode)(void *);
+
+	/**
+	 * Free codec resources.
+	 */
+	void (*exit)(void);
+
+	/**
+	 * Optional. Set to NULL if unavailable.
+	 * Get number of samples in audio file.
+	 */
+	size_t (*getFileSamples)(void);
 };
 
-struct decoder_fn{
-	int (* init)(const char* file);
-	uint32_t (* rate)(void);
-	uint8_t (* channels)(void);
-	size_t vorbis_buffer_size;
-	uint64_t (* decode)(void*);
-	void (* exit)(void);
-	long (* bitrate)(void);
+struct playbackInfo_t
+{
+	char file[PATH_MAX];
+	struct errInfo_t *errInfo;
+
+	/* If 0, then the duration of file is unavailable. */
+	size_t samples_total;
+	size_t samples_played;
+	size_t samples_per_second;
 };
 
-struct playbackInfo_t{
-	char*		file;
-	bool*		isPlay;
-};
-
+/**
+ * Pause or play current file.
+ *
+ * \return	True if paused.
+ */
 bool togglePlayback(void);
-void stopPlayback(void);
-bool isPlaying(void);
-int getFileType(const char *file);
-void playFile(void* infoIn);
 
-int changeFile(const char* ep_file, struct playbackInfo_t* playbackInfo,bool *p_isPlayMain);
-void play_main_music(bool *p_isPlayMain, LIST_T Song);
-void pasue_main_music();
-void stop_main_music();
-void init_main_music();
-int check_wave(LIST_T Song);
+/**
+ * Stops current playback. Playback thread should exit as a result.
+ */
+void stopPlayback(void);
+
+/**
+ * Returns whether music is playing or paused.
+ */
+bool isPlaying(void);
+
+/**
+ * Should only be called from a new thread only, and have only one playback
+ * thread at time. This function has not been written for more than one
+ * playback thread in mind.
+ *
+ * \param	infoIn	Playback information.
+ */
+void playFile(void *infoIn);
+
+#endif

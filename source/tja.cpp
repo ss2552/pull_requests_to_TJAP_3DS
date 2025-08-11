@@ -80,22 +80,17 @@ void load_tja_head(int course, LIST_T Song)
 	// Current_Header.demostart = 0;
 	// Current_Header.side = 3;
 	Current_Header.scoremode = 2;
-	exam[0][0] = (char *)"";
-	exam[0][1] = (char *)"";
-	exam[0][2] = (char *)"";
-	exam[0][3] = (char *)"";
-	exam[1][0] = (char *)"";
-	exam[1][1] = (char *)"";
-	exam[1][2] = (char *)"";
-	exam[1][3] = (char *)"";
-	exam[2][0] = (char *)"";
-	exam[2][1] = (char *)"";
-	exam[2][2] = (char *)"";
-	exam[2][3] = (char *)"";
-	exam[3][0] = (char *)"";
-	exam[3][1] = (char *)"";
-	exam[3][2] = (char *)"";
-	exam[3][3] = (char *)"";
+
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			exam[i][j] = (char *)"";
+		}
+		{
+			exam[i][j] = (char *)"";
+		}
+	}
 
 	chdir(Song.path);
 	int cnt = -1;

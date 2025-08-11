@@ -264,7 +264,7 @@ enum WARNING_KND
 bool get_isPause();
 char *get_buffer();
 void load_option();
-void get_option(OPTION_T *Option);
+void get_option(OPTION_T *TMP);
 void load_skin();
 void get_skin(SKIN_T *Skin);
 void load_sprites();
