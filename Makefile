@@ -35,7 +35,7 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET      := $(notdir $(CURDIR))
 BUILD       := build
-SOURCES     := source source/ctrmus
+SOURCES     := source
 DATA        := data
 INCLUDES    := include
 GRAPHICS    := gfx
@@ -65,7 +65,7 @@ LDFLAGS     = -specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map)
 #---------------------------------------------------------------------------------
 # Libraries needed to link into the executable.
 #---------------------------------------------------------------------------------
-LIBS := -lcitro2d -lcitro3d -lctru -lm -logg -lvorbisidec
+LIBS := -lcitro2d -lcitro3d -lctru -lm -logg -lvorbisidec -ljansson
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

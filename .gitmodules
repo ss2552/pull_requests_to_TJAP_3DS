@@ -1,8 +1,0 @@
-[submodule "tremor"]
-	path = tremor
-	url = https://github.com/sezero/tremor.git
-[submodule "ogg"]
-	path = ogg
-	url = https://github.com/xiph/ogg.git
-
-# https://github.com/xiph/vorbis
